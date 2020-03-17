@@ -11,16 +11,18 @@ struct response1
 
 struct response2
 {
-    int id; //preguntar cuantos sirios se manejaran
-    String start; //averiguar como cambiarlo a TIMESTAMP in UTC
-    String duration; //averiguar como cambiarlo a MINUTES
-    int access_code; 
+    int id;
+    const char* start;  
+    long duration; 
+    int type;
+    int access_code;
 };
 
-namespace request{
+namespace request
+{
     bool init(void);
     response1 ping(void);
     response2 schedules(void);
-}
+} 
 
 #endif
