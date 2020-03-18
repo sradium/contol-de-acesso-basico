@@ -1,15 +1,25 @@
 #include <Arduino.h>
 #include "access.h"
 
+const unsigned long interval = 5000;
+unsigned long current;
+response1 rp1;
+
 void setup()
 {
-  pinMode(9, OUTPUT);
+  request::init();
+  current = millis();
 }
 
 void loop()
 {
-  digitalWrite(9, HIGH);
-  delay(1000);
-  digitalWrite(9, LOW);
-  delay(1000);
+  if((millis() - current) > interval)
+  {
+    request::ping(&rp1);
+    current = millis();
+  }
+
+  if(rp1.schedule == true){
+    access::update();
+  }
 }

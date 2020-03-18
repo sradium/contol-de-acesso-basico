@@ -3,26 +3,25 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-struct response1
+typedef struct response1
 {
     bool schedule;
     bool action;
-};
+} response1_t;
 
 struct response2
 {
-    int id;
+    unsigned int id;
     const char* start;  
-    long duration; 
-    int type;
-    int access_code;
+    unsigned int duration;
+    unsigned int access_code;
 };
 
 namespace request
 {
     bool init(void);
-    response1 ping(void);
-    response2 schedules(void);
+    void ping(response1 *rp1);
+    void schedules(struct response2 rp2[]);
 } 
 
 #endif

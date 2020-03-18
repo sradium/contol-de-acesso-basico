@@ -10,8 +10,7 @@ IPAddress ip(192, 168, 66, 244);
 IPAddress myDns(192, 168, 66, 1);
 EthernetClient client;
 
-char server[] = "arduinojson.org";
-// IPAddress server(192,168,66,138);
+char server[] = "cemco.innotica.net";
 
 bool request::init()
 {
@@ -52,25 +51,24 @@ bool request::init()
     }
 }
 
-response1 request::ping()
+void request::ping(response1_t *rp1)
 {
     client.stop();
-    response1 rp1;
 
     if (client.connect(server, 80))
     {
-        Serial.println("connecting...");
-        client.println("POST /api/v1/ping HTTP/1.1");
-        client.println("Host: arduinojson.org"); 
-        client.println("User-Agent: sirio-ethernet");
-        client.println("Content-Type: application/json");
-        client.println();
-        client.println("{\"sirio_id\": 123}");
+        client.println("GET /api/sirio/v1/ping HTTP/1.1");
+        client.println("Host: cemco.innotica.net");
+        client.println("User-Agent: sirio");
+        client.println("Connection: keep-alive");
+        // client.println("Content-Type: application/json");
+        client.println("");
+        // client.println("{\"sirio_id\": 123}");
     }
     else
     {
         Serial.println("connection failed");
-        return rp1;
+        return;
     }
 
     char status[32] = {0};
@@ -79,16 +77,18 @@ response1 request::ping()
     {
         Serial.print("Unexpected response: ");
         Serial.println(status);
-        return rp1;
+        return;
     }
 
     char endOfHeaders[] = "\r\n\r\n";
     if (!client.find(endOfHeaders))
     {
         Serial.println("Invalid response");
-        return rp1;
+        return;
     }
 
+    char salto[] = "\n";
+    client.find(salto);
     const size_t capacity = JSON_OBJECT_SIZE(2) + 20;
     DynamicJsonDocument doc(capacity);
 
@@ -97,30 +97,31 @@ response1 request::ping()
     {
         Serial.print("deserializeJson() failed: ");
         Serial.println(error.c_str());
-        return rp1;
+        return;
     }
 
-    rp1.schedule = doc["schedules"]; // true
-    rp1.action = doc["actions"]; // false
-    return rp1;
+    rp1 -> schedule = doc["schedules"]; // true
+    rp1 -> action = doc["actions"]; // false
+    return;
 }
 
-response2 request::schedules()
+void request::schedules(struct response2 rp2[])
 {
     client.stop();
-    response2 rp2;
-
     if (client.connect(server, 80))
     {
         Serial.println("connecting...");
-        client.println("GET /api/v1/schedules HTTP/1.1");
-        client.println("Host: arduinojson.org"); 
+        client.println("GET /api/sirio/v1/schedules HTTP/1.1");
+        client.println("Host: cemco.innotica.net");
+        client.println("User-Agent:	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0");
+        client.println("Accept:	text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         client.println("Connection: close");
+        client.println("");
     }
     else
     {
         Serial.println("connection failed");
-        return rp2;
+        return;
     }
 
     char status[32] = {0};
@@ -129,26 +130,28 @@ response2 request::schedules()
     {
         Serial.print("Unexpected response: ");
         Serial.println(status);
-        return rp2;
+        return;
     }
 
     char endOfHeaders[] = "\r\n\r\n";
     if (!client.find(endOfHeaders))
     {
         Serial.println("Invalid response");
-        return rp2;
+        return;
     }
 
-    const size_t capacity = JSON_OBJECT_SIZE(5) + 60;
+    char salto[] = "\n";
+    client.find(salto);
+    const size_t capacity = JSON_ARRAY_SIZE(2) + 2*JSON_OBJECT_SIZE(4) + 120;
     DynamicJsonDocument doc(capacity);
 
     deserializeJson(doc, client);
-
-    rp2.id = doc["id"]; // 123
-    rp2.start = doc["start"]; // "TIMESTAMP in UTC"
-    rp2.duration = doc["duration"]; // 90
-    rp2.type = doc["type"]; // 15222
-    rp2.access_code = doc["access_code"]; // 451278
-
-    return rp2;
+    Serial.println(doc.size());
+    for(unsigned int i=0; i<doc.size(); ++i)
+    {
+        rp2[i].id = doc[i]["id"]; // 1 or 2
+        rp2[i].start = doc[i]["start"]; // "2020-03-25 08:30:00" or "2020-04-20 12:00:00"
+        rp2[i].duration = doc[i]["duration"]; // 90 or 120
+        rp2[i].access_code = doc[i]["access_code"]; // 123456 or 858585
+    }
 }

@@ -9,6 +9,7 @@
 #define TABLE_SIZE 4096
 #define RECORDS_TO_CREATE 10
 
+struct response2 rp2[2];
 response2 event_access;
 
 // The read and write handlers for using the EEPROM Library
@@ -44,13 +45,11 @@ void access::init()
 {
     //while (!request::init());
     db.create(0, TABLE_SIZE, (unsigned int)sizeof(event_access));
-    event_access.id = 123;
-    event_access.access_code = 457863;
-    db.appendRec(EDB_REC event_access);
 }
 
 bool access::update()
-{
+{  
+    request::schedules(rp2);
     return false;
 }
 
