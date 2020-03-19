@@ -51,7 +51,7 @@ bool request::init()
     }
 }
 
-void request::ping(response1_t *rp1)
+bool request::ping(response1_t *rp1)
 {
     client.stop();
 
@@ -67,24 +67,24 @@ void request::ping(response1_t *rp1)
     }
     else
     {
-        Serial.println("connection failed");
-        return;
+        Serial.println("ping connection failed");
+        return false;
     }
 
     char status[32] = {0};
     client.readBytesUntil('\r', status, sizeof(status));
     if (strcmp(status + 9, "200 OK") != 0)
     {
-        Serial.print("Unexpected response: ");
+        Serial.print("ping unexpected response: ");
         Serial.println(status);
-        return;
+        return false;
     }
 
     char endOfHeaders[] = "\r\n\r\n";
     if (!client.find(endOfHeaders))
     {
-        Serial.println("Invalid response");
-        return;
+        Serial.println("ping invalid response");
+        return false;
     }
 
     char salto[] = "\n";
@@ -95,14 +95,14 @@ void request::ping(response1_t *rp1)
     DeserializationError error = deserializeJson(doc, client);
     if (error)
     {
-        Serial.print("deserializeJson() failed: ");
+        Serial.print("ping deserializeJson() failed: ");
         Serial.println(error.c_str());
-        return;
+        return false;
     }
 
     rp1 -> schedule = doc["schedules"]; // true
     rp1 -> action = doc["actions"]; // false
-    return;
+    return true;
 }
 
 bool request::schedules(struct response2 rp2[])
@@ -110,7 +110,7 @@ bool request::schedules(struct response2 rp2[])
     client.stop();
     if (client.connect(server, 80))
     {
-        Serial.println("connecting...");
+        Serial.println("connecting... /api/sirio/v1/schedules");
         client.println("GET /api/sirio/v1/schedules HTTP/1.1");
         client.println("Host: cemco.innotica.net");
         client.println("User-Agent:	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0");
@@ -120,7 +120,7 @@ bool request::schedules(struct response2 rp2[])
     }
     else
     {
-        Serial.println("connection failed");
+        Serial.println("Schedules connection failed");
         return false;
     }
 
@@ -128,7 +128,7 @@ bool request::schedules(struct response2 rp2[])
     client.readBytesUntil('\r', status, sizeof(status));
     if (strcmp(status + 9, "200 OK") != 0)
     {
-        Serial.print("Unexpected response: ");
+        Serial.print("Schedules unexpected response: ");
         Serial.println(status);
         return false;
     }
@@ -136,7 +136,7 @@ bool request::schedules(struct response2 rp2[])
     char endOfHeaders[] = "\r\n\r\n";
     if (!client.find(endOfHeaders))
     {
-        Serial.println("Invalid response");
+        Serial.println("Schedules invalid response");
         return false;
     }
 
@@ -154,6 +154,6 @@ bool request::schedules(struct response2 rp2[])
         rp2[i].access_code = doc[i]["access_code"]; // 123456 or 858585
     }
 
-    Serial.println("successful");
+    Serial.println("Schedules successful");
     return true;
 }

@@ -15,7 +15,9 @@ void loop()
 {
   if((millis() - current) > interval)
   {
-    request::ping(&rp1);
+    while(request::ping(&rp1)){
+      delay(300);
+    }
     current = millis();
   }
 
