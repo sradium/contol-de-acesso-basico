@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "access.h"
 
-const unsigned long interval = 5000;
+const unsigned long interval = 60000;
 unsigned long current;
 response1 rp1;
 
@@ -20,6 +20,6 @@ void loop()
   }
 
   if(rp1.schedule == true){
-    access::update();
+    access::update(&rp1);
   }
 }

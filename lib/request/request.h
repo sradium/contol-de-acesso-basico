@@ -21,7 +21,7 @@ namespace request
 {
     bool init(void);
     void ping(response1 *rp1);
-    void schedules(struct response2 rp2[]);
+    bool schedules(struct response2 rp2[]);
 } 
 
 #endif

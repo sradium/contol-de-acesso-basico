@@ -47,10 +47,12 @@ void access::init()
     db.create(0, TABLE_SIZE, (unsigned int)sizeof(event_access));
 }
 
-bool access::update()
+void access::update(response1_t *rp1)
 {  
-    request::schedules(rp2);
-    return false;
+    if(request::schedules(rp2))
+    {
+        rp1 -> schedule = false;
+    }
 }
 
 void access::validate()

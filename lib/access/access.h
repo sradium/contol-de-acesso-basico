@@ -7,7 +7,7 @@
 namespace access
 {
     void init(void);
-    bool update(void);
+    void update(response1 *rp1);
     void validate(void);
 }
 

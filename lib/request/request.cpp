@@ -105,7 +105,7 @@ void request::ping(response1_t *rp1)
     return;
 }
 
-void request::schedules(struct response2 rp2[])
+bool request::schedules(struct response2 rp2[])
 {
     client.stop();
     if (client.connect(server, 80))
@@ -121,7 +121,7 @@ void request::schedules(struct response2 rp2[])
     else
     {
         Serial.println("connection failed");
-        return;
+        return false;
     }
 
     char status[32] = {0};
@@ -130,14 +130,14 @@ void request::schedules(struct response2 rp2[])
     {
         Serial.print("Unexpected response: ");
         Serial.println(status);
-        return;
+        return false;
     }
 
     char endOfHeaders[] = "\r\n\r\n";
     if (!client.find(endOfHeaders))
     {
         Serial.println("Invalid response");
-        return;
+        return false;
     }
 
     char salto[] = "\n";
@@ -146,7 +146,6 @@ void request::schedules(struct response2 rp2[])
     DynamicJsonDocument doc(capacity);
 
     deserializeJson(doc, client);
-    Serial.println(doc.size());
     for(unsigned int i=0; i<doc.size(); ++i)
     {
         rp2[i].id = doc[i]["id"]; // 1 or 2
@@ -154,4 +153,7 @@ void request::schedules(struct response2 rp2[])
         rp2[i].duration = doc[i]["duration"]; // 90 or 120
         rp2[i].access_code = doc[i]["access_code"]; // 123456 or 858585
     }
+
+    Serial.println("successful");
+    return true;
 }
