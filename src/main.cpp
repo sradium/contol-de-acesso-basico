@@ -7,7 +7,7 @@ response1 rp1;
 
 void setup()
 {
-  request::init();
+  access::init();
   current = millis();
 }
 
@@ -15,10 +15,9 @@ void loop()
 {
   if((millis() - current) > interval)
   {
-    while(request::ping(&rp1)){
-      delay(300);
+    if(request::ping(&rp1)){
+      current = millis();
     }
-    current = millis();
   }
 
   if(rp1.schedule == true){

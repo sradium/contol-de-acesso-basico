@@ -6,8 +6,9 @@
 byte mac[] = {
     0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
-IPAddress ip(192, 168, 66, 244);
-IPAddress myDns(192, 168, 66, 1);
+//Configuracion statica del shield ethernet
+IPAddress ip(192, 168, 1, 107);
+IPAddress myDns(200, 44, 32, 12);
 EthernetClient client;
 
 char server[] = "cemco.innotica.net";
@@ -27,12 +28,12 @@ bool request::init()
         Serial.println("Failed to configure Ethernet using DHCP");
         if (Ethernet.hardwareStatus() == EthernetNoHardware)
         {
-            Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+            Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware");
             return false;
         }
         if (Ethernet.linkStatus() == LinkOFF)
         {
-            Serial.println("Ethernet cable is not connected.");
+            Serial.println("Ethernet cable is not connected");
             delay(1000);
             return false;
         }
@@ -55,12 +56,14 @@ bool request::ping(response1_t *rp1)
 {
     client.stop();
 
-    if (client.connect(server, 80))
+    if (client.connect(server, 80)) //Con esta libreria no me puedo conectar por el puerto 443
     {
+        Serial.println("connecting... /api/sirio/v1/ping");
         client.println("GET /api/sirio/v1/ping HTTP/1.1");
         client.println("Host: cemco.innotica.net");
-        client.println("User-Agent: sirio");
+        client.println("User-Agent: sirio-ethernet");
         client.println("Connection: keep-alive");
+        client.println("Accept:	text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         // client.println("Content-Type: application/json");
         client.println("");
         // client.println("{\"sirio_id\": 123}");
@@ -102,18 +105,19 @@ bool request::ping(response1_t *rp1)
 
     rp1 -> schedule = doc["schedules"]; // true
     rp1 -> action = doc["actions"]; // false
+    Serial.println("Ping successful\r\n");
     return true;
 }
 
 bool request::schedules(struct response2 rp2[])
 {
     client.stop();
-    if (client.connect(server, 80))
+    if (client.connect(server, 80)) //Con esta libreria no me puedo conectar por el puerto 443
     {
         Serial.println("connecting... /api/sirio/v1/schedules");
         client.println("GET /api/sirio/v1/schedules HTTP/1.1");
         client.println("Host: cemco.innotica.net");
-        client.println("User-Agent:	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0");
+        client.println("User-Agent:	sirio-ethernet");
         client.println("Accept:	text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         client.println("Connection: close");
         client.println("");
@@ -132,7 +136,7 @@ bool request::schedules(struct response2 rp2[])
         Serial.println(status);
         return false;
     }
-
+        
     char endOfHeaders[] = "\r\n\r\n";
     if (!client.find(endOfHeaders))
     {
@@ -142,7 +146,8 @@ bool request::schedules(struct response2 rp2[])
 
     char salto[] = "\n";
     client.find(salto);
-    const size_t capacity = JSON_ARRAY_SIZE(2) + 2*JSON_OBJECT_SIZE(4) + 120;
+    // En esta linea en donde declaro el tamaño del json, por los momentos tengo para 20 registros
+    const size_t capacity = JSON_ARRAY_SIZE(20) + 20*JSON_OBJECT_SIZE(4) + 120;
     DynamicJsonDocument doc(capacity);
 
     deserializeJson(doc, client);
@@ -154,6 +159,6 @@ bool request::schedules(struct response2 rp2[])
         rp2[i].access_code = doc[i]["access_code"]; // 123456 or 858585
     }
 
-    Serial.println("Schedules successful");
+    Serial.println("Schedules successful\r\n");
     return true;
 }

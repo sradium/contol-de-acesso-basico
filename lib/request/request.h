@@ -19,8 +19,8 @@ struct response2
 
 namespace request
 {
-    bool init(void);
-    bool ping(response1 *rp1);
+    bool init(void);  
+    bool ping(response1 *rp1); 
     bool schedules(struct response2 rp2[]);
 } 
 
