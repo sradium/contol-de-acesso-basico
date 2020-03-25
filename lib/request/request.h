@@ -22,6 +22,7 @@ namespace request
     bool init(void);  
     bool ping(response1 *rp1); 
     bool schedules(struct response2 rp2[]);
+    bool get(const char* url);
 } 
 
 #endif

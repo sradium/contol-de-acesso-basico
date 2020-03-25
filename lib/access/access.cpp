@@ -20,7 +20,7 @@ EDB db_warnings(&writer, &reader);
 
 void access::init()
 {
-     while (!request::init())
+    while (!request::init())
     {
         delay(300);
     }
@@ -88,3 +88,4 @@ void access::update(response1_t *rp1)
         Serial.println();
     }
 }
+
