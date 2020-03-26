@@ -2,7 +2,9 @@
 
 # Construido con
 * [Visual Studio Code](https://code.visualstudio.com/) - El editor de codigo usado.
+
 * [PlatformIO](https://platformio.org/) - Extensión para sistemas embebidos. 
+
 # Librerias
 En el desarrollo del proyecto se implementaron liberías de terceros para la comunicación con los periféricos.
 

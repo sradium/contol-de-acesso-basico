@@ -14,7 +14,7 @@ struct response2
     unsigned int id;
     const char* start;  
     unsigned int duration;
-    unsigned int access_code;
+    unsigned long access_code;
 };
 
 namespace request
@@ -23,6 +23,7 @@ namespace request
     bool ping(response1 *rp1); 
     bool schedules(struct response2 rp2[]);
     bool get(const char* url);
+    bool endpoint(void);
 } 
 
 #endif

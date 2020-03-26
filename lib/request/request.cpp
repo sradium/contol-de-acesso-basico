@@ -47,7 +47,7 @@ bool request::init()
     }
 }
 
-bool request::get(const char *url)
+bool request::get(const char* url)
 {
     client.stop();
     if (client.connect(server, 80)) //Con esta libreria no me puedo conectar por el puerto 443
@@ -86,7 +86,7 @@ bool request::get(const char *url)
 
 bool request::ping(response1_t *rp1)
 {
-    if (get("api/sirio/v1/ping"))
+    if (get("/api/sirio/v1/ping"))
     {
         const size_t capacity = JSON_OBJECT_SIZE(2) + 20;
         DynamicJsonDocument doc(capacity);
@@ -104,13 +104,14 @@ bool request::ping(response1_t *rp1)
         Serial.println("Ping successful\r\n");
         return true;
     }else{
+        Serial.println("connection ping failed\r\n");
         return false;
     }
 }
 
 bool request::schedules(struct response2 rp2[])
 {
-    if (get("api/sirio/v1/schedules"))
+    if (get("/api/sirio/v1/schedules"))
     {
         const size_t capacity = JSON_ARRAY_SIZE(20) + 20 * JSON_OBJECT_SIZE(4) + 120;
         DynamicJsonDocument doc(capacity);
@@ -118,12 +119,12 @@ bool request::schedules(struct response2 rp2[])
         deserializeJson(doc, client);
         for (unsigned int i = 0; i < doc.size(); ++i)
         {
-            rp2[i].id = doc[i]["id"];                   // 1 or 2
-            rp2[i].start = doc[i]["start"];             // "2020-03-25 08:30:00" or "2020-04-20 12:00:00"
-            rp2[i].duration = doc[i]["duration"];       // 90 or 120
-            rp2[i].access_code = doc[i]["access_code"]; // 123456 or 858585
+            JsonObject root = doc[i];
+            rp2[i].id = root["id"];                   
+            rp2[i].start = root["start"];
+            rp2[i].duration = root["duration"];       
+            rp2[i].access_code = root["access_code"]; 
         }
-
         Serial.println("Connection schedules successful\r\n");
         return true;
     }
@@ -133,4 +134,8 @@ bool request::schedules(struct response2 rp2[])
         return false;
     }
     
+}
+
+bool endpoint(){
+    return false;
 }
