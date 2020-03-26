@@ -26,18 +26,11 @@ void access::init()
         delay(300);
     }
     devices::add(0, "Camera1", false, "Main door");
+
     db_access.open(0);
     //db_access.create(0, 2*TABLE_SIZE, (unsigned int)sizeof(event_access));
     db_users_access.open(2049);
     //db_users_access.create(2049, TABLE_SIZE, (unsigned int)sizeof(try_access));
-    Serial.print("No of records max tabla 1: ");
-    Serial.println(db_access.limit());
-    Serial.print("No of records used tabla 1: ");
-    Serial.println(db_access.count());
-    Serial.print("No of records max tabla 2: ");
-    Serial.println(db_users_access.limit());
-    Serial.print("No of records used tabla 2: ");
-    Serial.println(db_users_access.count());
 }
 
 int access::searchID(int l, int r, unsigned long x)
@@ -77,14 +70,10 @@ void access::update_code_access(response1_t *rp1)
         rp1->schedule = false;
         for (int i = 0; rp2[i].id != 0 && db_access.limit() != db_access.count(); ++i)
         {
-            /*
-            * Se guardan en memoria todos los registros recibidos de schedules
-            */
             int recno = searchID(1, db_access.count(), rp2[i].access_code);
             if (recno != -1)
             {
                 //db_access.updateRec(recno, EDB_REC rp2[i]);
-                Serial.println("Actualice el valor");
             }
             else
             {
@@ -92,12 +81,10 @@ void access::update_code_access(response1_t *rp1)
                 if (j < (int)db_access.count())
                 {
                     db_access.insertRec(j, EDB_REC rp2[i]);
-                    Serial.println("Inserte el registro");
                 }
                 else
                 {
                     db_access.appendRec(EDB_REC rp2[i]);
-                    Serial.println("Inserte al final");
                 }
             }
         }
@@ -107,14 +94,16 @@ void access::update_code_access(response1_t *rp1)
     }
 }
 
-void access::update_code_access(String time, long code, bool attempt)
+void access::update_users_access(String time, long code, bool attempt)
 {
     access_attempt try_access;
     try_access.timestamp = time;
     try_access.code = code;
     try_access.attempt = attempt;
     //db_users_access.appendRec(EDB_REC try_access);
-    Serial.println("Guarde el intento en la memoria");
+    Serial.print("Guarde el intento ");
+    Serial.print(code); 
+    Serial.println(" en la memoria");
 }
 
 bool access::validate(long code)

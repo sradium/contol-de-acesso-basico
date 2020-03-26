@@ -7,6 +7,7 @@
 #include <Arduino.h>
 #include <Keypad.h>
 #include <access.h>
+#include <device.h>
 
 #ifndef KPD_H
 #define KPD_H
