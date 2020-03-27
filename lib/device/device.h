@@ -4,10 +4,8 @@
 #define DEVICE_H
 
 /*
-*
 * Numero de dispositivos default si se desea cambiar en numero de dispositivos
-* solo tiene de agregar la linea #define NO_DEVICES <cantidad>.
-*
+* solo tiene de agregar la linea #define NO_DEVICES <cantidad>
 */
 
 #ifndef NO_DEVICES
@@ -16,14 +14,16 @@
 
 struct device{
     int id;
-    String name;
+    const char* name;
     bool status;
-    String location;
+    const char* location;
 };
 
 namespace devices{
-    void add(int id, String name, bool status, String location);
+    void add(int id, const char* name, bool status, const char* location);
     bool getStatus(int id);
-    String getLocation(int id);
+    const char* getLocation(int id);
+    bool getStatus(const char* name);
+    const char* getLocation(const char* name);
 }
 #endif

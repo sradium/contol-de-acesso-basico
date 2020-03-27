@@ -26,7 +26,7 @@ void loop()
     }
   }
 
-  if(rp1.schedule == true){
+  if(rp1.schedule){
     access::update_code_access(&rp1);
   }
 }

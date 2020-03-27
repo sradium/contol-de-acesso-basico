@@ -18,6 +18,8 @@ En el desarrollo del proyecto se implementaron liberías de terceros para la com
 
 * [Ethernet](https://github.com/arduino-libraries/Ethernet) - Libería del shield de ethernet.
 
+* [Time](https://github.com/PaulStoffregen/Time) - Libería para el manejo del tiempo
+
 Para la instalación de las liberías se puede dirigir al gestor de liberías de platformio y buscar cada una de las liberías.
 
 ![Example_install_library](Example.png "Example")

@@ -19,6 +19,15 @@ byte reader(unsigned long address)
 EDB db_access(&writer, &reader);
 EDB db_users_access(&writer, &reader);
 
+/*
+*
+*   Las funciones que estan a continuacion se encargan de administrar la base de datos
+*   de los accesos programados a la radiobase, por los momentos se almacenan en memoria 
+*   los registros nuevos ordenados los codigos de accceso de menor a mayor, para poder 
+*   implementar una busqueda binaria al buscar un codigo en la db
+*
+*/
+
 void access::init()
 {
     while (!request::init())
@@ -26,6 +35,14 @@ void access::init()
         delay(300);
     }
     devices::add(0, "Camera1", false, "Main door");
+
+    /*
+    * Si es la primera vez que se cargara el programa en el arduino se tiene
+    * que comentar los open y descomentar los create. Despues de correrlo se
+    * vuelve a cambiar. Esto es necesario para cargar en la memoria la db 
+    * para poder acceder a ella despues de un corte de energia y recuperar los 
+    * datos
+    */
 
     db_access.open(0);
     //db_access.create(0, 2*TABLE_SIZE, (unsigned int)sizeof(event_access));
@@ -73,7 +90,7 @@ void access::update_code_access(response1_t *rp1)
             int recno = searchID(1, db_access.count(), rp2[i].access_code);
             if (recno != -1)
             {
-                //db_access.updateRec(recno, EDB_REC rp2[i]);
+                //db_access.updateRec(recno, EDB_REC rp2[i]); Esta comentando para no desgastar la eeprom
             }
             else
             {
@@ -88,22 +105,30 @@ void access::update_code_access(response1_t *rp1)
                 }
             }
         }
-        Serial.print("No of record used: ");
-        Serial.println(db_access.count());
-        Serial.println();
     }
 }
 
-void access::update_users_access(String time, long code, bool attempt)
+/*
+*
+* Las funciones a continuacion son las que se encargan de administrar la
+* base de datos de los intentos de acceso a la radiobase. La primera almacena
+* Los datos en la db, la segunda elimina todos los registros y la tercera es la
+* que se encarga de buscar en la db de los accesos programados para permitir el
+* acceso
+*
+*/
+
+void access::update_users_access(time_t time, long code, bool attempt)
 {
     access_attempt try_access;
     try_access.timestamp = time;
     try_access.code = code;
     try_access.attempt = attempt;
-    //db_users_access.appendRec(EDB_REC try_access);
+    //db_users_access.appendRec(EDB_REC try_access); Esta comentando para no desgastar la eeprom
     Serial.print("Guarde el intento ");
-    Serial.print(code); 
-    Serial.println(" en la memoria");
+    Serial.print(code);
+    Serial.print(" en la memoria a la hora ");
+    Serial.println(time);
 }
 
 bool access::validate(long code)

@@ -47,10 +47,14 @@ bool request::init()
     }
 }
 
-bool request::get(const char* url)
+/*
+*   Metodo get generico para la conexion a los endpoint
+*/
+
+bool request::get(const char* url, const char* msg)
 {
     client.stop();
-    if (client.connect(server, 80)) //Con esta libreria no me puedo conectar por el puerto 443
+    if (client.connect(server, 80))
     {
         client.print("GET ");
         client.print(url);
@@ -58,8 +62,8 @@ bool request::get(const char* url)
         client.println("Host: cemco.innotica.net");
         client.println("User-Agent:	sirio-ethernet");
         client.println("Accept:	text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-        client.println("Connection: close");
-        client.println("");
+        client.println("Connection: keep-alive");
+        client.print(msg);
     }
     else
     {
@@ -86,7 +90,7 @@ bool request::get(const char* url)
 
 bool request::ping(response1_t *rp1)
 {
-    if (get("/api/sirio/v1/ping"))
+    if (get("/api/sirio/v1/ping", "\r\n"))
     {
         const size_t capacity = JSON_OBJECT_SIZE(2) + 20;
         DynamicJsonDocument doc(capacity);
@@ -111,7 +115,7 @@ bool request::ping(response1_t *rp1)
 
 bool request::schedules(struct response2 rp2[])
 {
-    if (get("/api/sirio/v1/schedules"))
+    if (get("/api/sirio/v1/schedules", "\r\n"))
     {
         const size_t capacity = JSON_ARRAY_SIZE(20) + 20 * JSON_OBJECT_SIZE(4) + 120;
         DynamicJsonDocument doc(capacity);
@@ -133,7 +137,6 @@ bool request::schedules(struct response2 rp2[])
         Serial.println("Connection schedules failed\r\n");
         return false;
     }
-    
 }
 
 bool endpoint(){

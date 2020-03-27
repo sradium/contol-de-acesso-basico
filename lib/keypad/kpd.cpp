@@ -17,7 +17,35 @@ String code;
 
 bool kpd::begin()
 {
+  setTime(8, 33, 0, 27, 3, 2020); //Paso el tiempo en cada corrida
   return true;
+}
+
+/* 
+* Funcion que evalua constantemente si el usuario ha presionado alguna tecla y la almacena
+* en un buffer. Cuando el usuario presiona la tecla # evalua si tiene una longitud de 6 
+* digitos, si es menor o mayor la clave es invalida. Cuando el codigo tiene una longitud 
+* correcta la busca en la base de datos. En todos los casos se toma una foto si hay una camara
+* activa y se guarda la hora con el codigo usado en la base de datos.
+*/
+
+void kpd::validate()
+{
+  if (devices::getStatus("camera1"))
+  {
+    Serial.println("Tome la foto");
+  }
+  else
+  {
+    Serial.println("No hay una camara disponible");
+  }
+  bool found = access::validate((long)code.toInt());
+  access::update_users_access(now(), (long)code.toInt(), found);
+  /*
+  *   Aqui me conecto al endpoint correspondiente
+  */
+  code = "";
+  n = 0;
 }
 
 void kpd::check()
@@ -30,32 +58,9 @@ void kpd::check()
       code += key;
       n++;
     }
-    else if (n == 6 && key == '#')
-    {
-      if(devices::getStatus(0)){
-        Serial.println("Tome la foto");
-      }
-      else
-      {
-        Serial.println("No hay una camara disponible");
-      }
-      bool attempt = access::validate((long)code.toInt());
-      access::update_users_access("Time", (long)code.toInt(), attempt);
-      code = "";
-      n = 0;
-    }
     else
     {
-      if(devices::getStatus(0)){
-        Serial.println("Tome la foto");
-      }
-      else
-      {
-        Serial.println("No hay una camara disponible");
-      }
-      access::update_users_access("Time", (long)code.toInt(), false);
-      code = "";
-      n = 0;
+      validate();
     }
   }
 }
