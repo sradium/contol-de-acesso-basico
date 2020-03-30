@@ -5,7 +5,7 @@
 
 const unsigned long interval = 60000;
 unsigned long current;
-response1 rp1;
+response1 next_connections;
 
 void setup()
 {
@@ -20,13 +20,12 @@ void loop()
 
   if((millis() - current) > interval)
   {
-    rp1.schedule = true;
-    if(request::ping(&rp1)){
+    if(request::ping(&next_connections)){
       current = millis();
     }
   }
 
-  if(rp1.schedule){
-    access::update_code_access(&rp1);
+  if(next_connections.schedules){
+    access::update_code_accesses(&next_connections);
   }
 }

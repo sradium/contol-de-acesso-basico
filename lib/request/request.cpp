@@ -1,7 +1,4 @@
 #include "request.h"
-#include <SPI.h>
-#include <Ethernet.h>
-#include <ArduinoJson.h>
 
 byte mac[] = {
     0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
@@ -51,7 +48,7 @@ bool request::init()
 *   Metodo get generico para la conexion a los endpoint
 */
 
-bool request::get(const char* url, const char* msg)
+bool request::get(const char *url, const char *msg)
 {
     client.stop();
     if (client.connect(server, 80))
@@ -103,14 +100,41 @@ bool request::ping(response1_t *rp1)
             return false;
         }
 
-        rp1->schedule = doc["schedules"]; // true
-        rp1->action = doc["actions"];     // false
+        rp1->schedules = doc["schedules"]; // true
+        rp1->actions = doc["actions"];     // false
         Serial.println("Ping successful\r\n");
         return true;
-    }else{
+    }
+    else
+    {
         Serial.println("connection ping failed\r\n");
         return false;
     }
+}
+
+time_t request::convertUnix(const char* date)
+{
+    int j = 0;
+    unsigned int elements[6] = {0};
+    for (int i = 0; i < 19; ++i)
+    {
+        if (date[i] == ' ' || date[i] == '-' || date[i] == ':')
+        {
+            ++j;
+        }
+        else
+        {
+           elements[j] = (elements[j]*10)+ ((int)date[i]- 48);
+        }
+    }
+    tmElements_t unix_date;
+    unix_date.Year = (elements[0] - 1970);
+    unix_date.Month = elements[1];
+    unix_date.Day = elements[2];
+    unix_date.Hour = elements[3];
+    unix_date.Minute = elements[4];
+    unix_date.Second = elements[5];
+    return makeTime(unix_date);
 }
 
 bool request::schedules(struct response2 rp2[])
@@ -124,10 +148,12 @@ bool request::schedules(struct response2 rp2[])
         for (unsigned int i = 0; i < doc.size(); ++i)
         {
             JsonObject root = doc[i];
-            rp2[i].id = root["id"];                   
-            rp2[i].start = root["start"];
-            rp2[i].duration = root["duration"];       
-            rp2[i].access_code = root["access_code"]; 
+            rp2[i].id = root["id"];
+            time_t start = convertUnix(root["start"]);
+            rp2[i].start = start;
+            time_t final = root["duration"];
+            rp2[i].final = (60*final)+start; 
+            rp2[i].access_code = root["access_code"];
         }
         Serial.println("Connection schedules successful\r\n");
         return true;
@@ -139,6 +165,7 @@ bool request::schedules(struct response2 rp2[])
     }
 }
 
-bool endpoint(){
+bool endpoint()
+{
     return false;
 }

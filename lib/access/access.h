@@ -8,7 +8,7 @@
 #define ACCESS_H
 
 struct access_attempt{
-    String timestamp;
+    time_t timestamp;
     long code;
     bool attempt;
 };
@@ -18,7 +18,7 @@ namespace access
     void init(void);
     int searchID(int l, int r, unsigned long x);
     int searchInsertID(int l, int r, unsigned long x);
-    void update_code_access(response1 *rp1);
+    void update_code_accesses(response1 *rp1);
     void update_users_access(time_t time, long code, bool attempt);
     bool validate(long code);
 }

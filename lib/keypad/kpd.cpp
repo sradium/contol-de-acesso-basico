@@ -33,7 +33,7 @@ void kpd::validate()
 {
   if (devices::getStatus("camera1"))
   {
-    Serial.println("Tome la foto");
+    Serial.println("Tomé la foto");
   }
   else
   {
@@ -58,7 +58,7 @@ void kpd::check()
       code += key;
       n++;
     }
-    else
+    else if(n>0)
     {
       validate();
     }
