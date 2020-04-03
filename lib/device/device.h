@@ -12,12 +12,12 @@
     #define NO_DEVICES 10 
 #endif
 
-struct device{
+typedef struct device{
     int id;
     const char* name;
     bool status;
     const char* location;
-};
+} device_t;
 
 namespace devices{
     void add(int id, const char* name, bool status, const char* location);

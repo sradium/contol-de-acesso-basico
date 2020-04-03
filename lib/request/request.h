@@ -7,26 +7,26 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-typedef struct response1
+typedef struct next_endpoint
 {
     bool schedules;
     bool actions;
-} response1_t;
+} next_endpoint_t;
 
-struct response2
+typedef struct access_record
 {
     unsigned int id;
     time_t start;  
     time_t final;
     unsigned long access_code;
-};
+} access_record_t;
 
 namespace request
 {
     bool init(void);  
-    bool ping(response1 *rp1);
+    bool ping(next_endpoint_t *ne);
     time_t convertUnix(const char* date); 
-    bool schedules(struct response2 rp2[]);
+    bool schedules(access_record_t ar[]);
     bool get(const char* url, const char* msg);
     bool endpoint(void);
 } 

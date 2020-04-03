@@ -1,7 +1,7 @@
 #include "device.h"
 #include <HashMap.h>
 
-device list[NO_DEVICES];
+device_t list[NO_DEVICES];
 HashType<const char*, int> hashRawArray[NO_DEVICES]; 
 HashMap<const char*, int> hashMap = HashMap<const char*, int>( hashRawArray , NO_DEVICES); 
 

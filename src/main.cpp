@@ -5,7 +5,7 @@
 
 const unsigned long interval = 60000;
 unsigned long current;
-response1 next_connections;
+next_endpoint_t next_connections;
 
 void setup()
 {

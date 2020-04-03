@@ -4,7 +4,7 @@ byte mac[] = {
     0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
 //Configuracion statica del shield ethernet
-IPAddress ip(192, 168, 1, 107);
+IPAddress ip(192, 168, 1, 106);
 IPAddress myDns(200, 44, 32, 12);
 EthernetClient client;
 
@@ -85,7 +85,7 @@ bool request::get(const char *url, const char *msg)
     return true;
 }
 
-bool request::ping(response1_t *rp1)
+bool request::ping(next_endpoint_t *ne)
 {
     if (get("/api/sirio/v1/ping", "\r\n"))
     {
@@ -100,8 +100,8 @@ bool request::ping(response1_t *rp1)
             return false;
         }
 
-        rp1->schedules = doc["schedules"]; // true
-        rp1->actions = doc["actions"];     // false
+        ne->schedules = doc["schedules"]; // true
+        ne->actions = doc["actions"];     // false
         Serial.println("Ping successful\r\n");
         return true;
     }
@@ -112,7 +112,7 @@ bool request::ping(response1_t *rp1)
     }
 }
 
-time_t request::convertUnix(const char* date)
+time_t request::convertUnix(const char *date)
 {
     int j = 0;
     unsigned int elements[6] = {0};
@@ -124,7 +124,7 @@ time_t request::convertUnix(const char* date)
         }
         else
         {
-           elements[j] = (elements[j]*10)+ ((int)date[i]- 48);
+            elements[j] = (elements[j] * 10) + ((int)date[i] - 48);
         }
     }
     tmElements_t unix_date;
@@ -137,7 +137,7 @@ time_t request::convertUnix(const char* date)
     return makeTime(unix_date);
 }
 
-bool request::schedules(struct response2 rp2[])
+bool request::schedules(access_record_t ar[])
 {
     if (get("/api/sirio/v1/schedules", "\r\n"))
     {
@@ -148,12 +148,12 @@ bool request::schedules(struct response2 rp2[])
         for (unsigned int i = 0; i < doc.size(); ++i)
         {
             JsonObject root = doc[i];
-            rp2[i].id = root["id"];
+            ar[i].id = root["id"];
             time_t start = convertUnix(root["start"]);
-            rp2[i].start = start;
+            ar[i].start = start;
             time_t final = root["duration"];
-            rp2[i].final = (60*final)+start; 
-            rp2[i].access_code = root["access_code"];
+            ar[i].final = (60 * final) + start;
+            ar[i].access_code = root["access_code"];
         }
         Serial.println("Connection schedules successful\r\n");
         return true;
@@ -165,7 +165,14 @@ bool request::schedules(struct response2 rp2[])
     }
 }
 
-bool endpoint()
+bool request::endpoint()
 {
-    return false;
+    if (get("/","\r\n"))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

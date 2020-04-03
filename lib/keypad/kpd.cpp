@@ -17,7 +17,7 @@ String code;
 
 bool kpd::begin()
 {
-  setTime(8, 33, 0, 27, 3, 2020); //Paso el tiempo en cada corrida
+  setTime(8, 33, 0, 25, 3, 2020); //Paso el tiempo en cada corrida
   return true;
 }
 

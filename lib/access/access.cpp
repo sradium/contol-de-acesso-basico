@@ -3,10 +3,6 @@
 
 #define TABLE_SIZE 1024
 
-struct response2 rp2[20];
-response2 event_access;
-access_attempt try_access;
-
 void writer(unsigned long address, byte data)
 {
     EEPROM.write(address, data);
@@ -17,8 +13,8 @@ byte reader(unsigned long address)
     return EEPROM.read(address);
 }
 
-EDB scheduled_accesses(&writer, &reader);
-EDB access_attempts(&writer, &reader);
+EDB db_scheduled_accesses(&writer, &reader);
+EDB db_access_attempts(&writer, &reader);
 
 /*
 *
@@ -45,14 +41,18 @@ void access::init()
     * datos
     */
 
-    scheduled_accesses.open(0);
-    //scheduled_accesses.create(0, 2 * TABLE_SIZE, (unsigned int)sizeof(event_access));
+    db_scheduled_accesses.open(0);
+    //db_scheduled_accesses.create(0, 2 * TABLE_SIZE, (unsigned int)sizeof(access_record));
     Serial.print("Record used in table 1: ");
-    Serial.println(scheduled_accesses.count());
-    access_attempts.open(2049);
-    //access_attempts.create(2049, TABLE_SIZE, (unsigned int)sizeof(try_access));
+    Serial.print(db_scheduled_accesses.count());
+    Serial.print(" ,and max of records: ");
+    Serial.print(db_scheduled_accesses.limit());
+    db_access_attempts.open(2049);
+    //db_access_attempts.create(2049, TABLE_SIZE, (unsigned int)sizeof(access_attempt));
     Serial.print("Record used in table 2: ");
-    Serial.println(access_attempts.count());
+    Serial.println(db_access_attempts.count());
+    Serial.print(" ,and max of records: ");
+    Serial.println(db_access_attempts.limit());
 }
 
 int access::searchID(int l, int r, unsigned long x)
@@ -60,10 +60,11 @@ int access::searchID(int l, int r, unsigned long x)
     if (r >= l)
     {
         int mid = l + (r - l) / 2;
-        scheduled_accesses.readRec(mid, EDB_REC event_access);
-        if (event_access.access_code == x)
+        access_record_t access_record;
+        db_scheduled_accesses.readRec(mid, EDB_REC access_record);
+        if (access_record.access_code == x)
             return mid;
-        if (event_access.access_code > x)
+        if (access_record.access_code > x)
             return searchID(l, mid - 1, x);
         return searchID(mid + 1, r, x);
     }
@@ -75,38 +76,40 @@ int access::searchInsertID(int l, int r, unsigned long x)
     if (r >= l)
     {
         int mid = l + (r - l) / 2;
-        scheduled_accesses.readRec(mid, EDB_REC event_access);
-        if (event_access.access_code == x)
+        access_record_t access_record;
+        db_scheduled_accesses.readRec(mid, EDB_REC access_record);
+        if (access_record.access_code == x)
             return mid;
-        if (event_access.access_code > x)
+        if (access_record.access_code > x)
             return searchInsertID(l, mid - 1, x);
         return searchInsertID(mid + 1, r, x);
     }
     return (r + 1);
 }
 
-void access::update_code_accesses(response1_t *rp1)
+void access::update_code_accesses(next_endpoint_t *ne)
 {
-    if (request::schedules(rp2))
+    access_record_t accesses_record[20];
+    if (request::schedules(accesses_record))
     {
-        rp1->schedules = false;
-        for (int i = 0; rp2[i].id != 0 && scheduled_accesses.limit() != scheduled_accesses.count(); ++i)
+        ne->schedules = false;
+        for (int i = 0; accesses_record[i].id != 0 && db_scheduled_accesses.limit() != db_scheduled_accesses.count(); ++i)
         {
-            int recno = searchID(1, scheduled_accesses.count(), rp2[i].access_code);
+            int recno = searchID(1, db_scheduled_accesses.count(), accesses_record[i].access_code);
             if (recno != -1)
             {
-                //scheduled_accesses.updateRec(recno, EDB_REC rp2[i]); Esta comentando para no desgastar la eeprom
+                //db_scheduled_accesses.updateRec(recno, EDB_REC accesses_record[i]); Esta comentando para no desgastar la eeprom
             }
             else
             {
-                int j = searchInsertID(1, scheduled_accesses.count(), rp2[i].access_code);
-                if (j < (int)scheduled_accesses.count())
+                int j = searchInsertID(1, db_scheduled_accesses.count(), accesses_record[i].access_code);
+                if (j < (int)db_scheduled_accesses.count())
                 {
-                    scheduled_accesses.insertRec(j, EDB_REC rp2[i]);
+                    db_scheduled_accesses.insertRec(j, EDB_REC accesses_record[i]);
                 }
                 else
                 {
-                    scheduled_accesses.appendRec(EDB_REC rp2[i]);
+                    db_scheduled_accesses.appendRec(EDB_REC accesses_record[i]);
                 }
             }
         }
@@ -125,24 +128,26 @@ void access::update_code_accesses(response1_t *rp1)
 
 void access::update_users_access(time_t time, long code, bool attempt)
 {
-    try_access.timestamp = time;
-    try_access.code = code;
-    try_access.attempt = attempt;
-    //access_attempts.appendRec(EDB_REC try_access); Esta comentando para no desgastar la eeprom
+    access_attempt_t access_attempt;
+    access_attempt.timestamp = time;
+    access_attempt.code = code;
+    access_attempt.attempt = attempt;
+    //db_access_attempts.appendRec(EDB_REC access_attempt); Esta comentando para no desgastar la eeprom
     Serial.print("Guarde el intento ");
-    Serial.print(code);
+    Serial.print(access_attempt.code);
     Serial.print(" en la memoria a la hora ");
-    Serial.println(time);
+    Serial.println(access_attempt.timestamp);
 }
 
 bool access::validate(long code)
 {
-    int recno = searchID(1, scheduled_accesses.count(), code);
+    int recno = searchID(1, db_scheduled_accesses.count(), code);
     if (recno != -1)
     {
         time_t current = now();
-        scheduled_accesses.readRec(recno, EDB_REC event_access);
-        if (current >= event_access.start && current <= event_access.final)
+        access_record_t access_record;
+        db_scheduled_accesses.readRec(recno, EDB_REC access_record);
+        if (current >= access_record.start && current <= access_record.final)
         {
             Serial.println("access granted");
         }
@@ -150,7 +155,6 @@ bool access::validate(long code)
         {
             Serial.println("access denied");
         }
-
         return true;
     }
     else
