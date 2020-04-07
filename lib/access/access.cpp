@@ -41,12 +41,13 @@ void access::init()
     * datos
     */
 
-    db_scheduled_accesses.open(0);
-    //db_scheduled_accesses.create(0, 2 * TABLE_SIZE, (unsigned int)sizeof(access_record));
+    //db_scheduled_accesses.open(0);
+    access_record_t access_record;
+    db_scheduled_accesses.create(0, 2 * TABLE_SIZE, (unsigned int)sizeof(access_record));
     Serial.print("Record used in table 1: ");
     Serial.print(db_scheduled_accesses.count());
     Serial.print(" ,and max of records: ");
-    Serial.print(db_scheduled_accesses.limit());
+    Serial.println(db_scheduled_accesses.limit());
     db_access_attempts.open(2049);
     //db_access_attempts.create(2049, TABLE_SIZE, (unsigned int)sizeof(access_attempt));
     Serial.print("Record used in table 2: ");
@@ -126,12 +127,8 @@ void access::update_code_accesses(next_endpoint_t *ne)
 *
 */
 
-void access::update_users_access(time_t time, long code, bool attempt)
+void access::update_users_access(access_attempt_t access_attempt)
 {
-    access_attempt_t access_attempt;
-    access_attempt.timestamp = time;
-    access_attempt.code = code;
-    access_attempt.attempt = attempt;
     //db_access_attempts.appendRec(EDB_REC access_attempt); Esta comentando para no desgastar la eeprom
     Serial.print("Guarde el intento ");
     Serial.print(access_attempt.code);
@@ -139,7 +136,7 @@ void access::update_users_access(time_t time, long code, bool attempt)
     Serial.println(access_attempt.timestamp);
 }
 
-bool access::validate(long code)
+String access::validate(long code)
 {
     int recno = searchID(1, db_scheduled_accesses.count(), code);
     if (recno != -1)
@@ -150,16 +147,17 @@ bool access::validate(long code)
         if (current >= access_record.start && current <= access_record.final)
         {
             Serial.println("access granted");
+            return "valid";
         }
         else
         {
             Serial.println("access denied");
+            return "invalid";
         }
-        return true;
     }
     else
     {
         Serial.println("access denied not found");
-        return false;
+        return "invalid";
     }
 }

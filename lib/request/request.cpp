@@ -48,12 +48,54 @@ bool request::init()
 *   Metodo get generico para la conexion a los endpoint
 */
 
-bool request::get(const char *url, const char *msg)
+bool request::get(const char* url, const char* msg)
 {
     client.stop();
     if (client.connect(server, 80))
     {
         client.print("GET ");
+        client.print(url);
+        client.println(" HTTP/1.1");
+        client.println("Host: cemco.innotica.net");
+        client.println("User-Agent:	sirio-ethernet");
+        client.println("Accept:	text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        client.println("Connection: keep-alive");
+        client.print(msg);
+    }
+    else
+    {
+        return false;
+    }
+
+    char status[32] = {0};
+    client.readBytesUntil('\r', status, sizeof(status));
+    if (strcmp(status + 9, "200 OK") != 0)
+    {
+        return false;
+    }
+
+    char endOfHeaders[] = "\r\n\r\n";
+    if (!client.find(endOfHeaders))
+    {
+        return false;
+    }
+
+    char salto[] = "\n";
+    client.find(salto);
+    return true;
+}
+
+
+/*
+*   Metodo post generico para la conexion a los endpoint
+*/
+
+bool request::post(const char* url, const char* msg)
+{
+    client.stop();
+    if (client.connect(server, 80))
+    {
+        client.print("POST ");
         client.print(url);
         client.println(" HTTP/1.1");
         client.println("Host: cemco.innotica.net");
@@ -165,14 +207,23 @@ bool request::schedules(access_record_t ar[])
     }
 }
 
-bool request::endpoint()
+bool request::audit(String json)
 {
-    if (get("/","\r\n"))
+    String msg = "Content-Length: 15\r\n\r\n";
+    msg += json;
+    char* buffer = (char*) msg.c_str();
+    if (get("/api/sirio/v1/audit", buffer))
     {
+        while ((client.available()))
+        {
+            char c = client.read();
+            Serial.write(c);
+        }
         return true;
     }
     else
     {
+        Serial.println("Connection endpoint failed\r\n");
         return false;
     }
 }

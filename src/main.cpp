@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "access.h"
 #include "kpd.h"
-#include "device.h"
 
 const unsigned long interval = 60000;
 unsigned long current;

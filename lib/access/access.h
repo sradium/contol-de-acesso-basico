@@ -10,7 +10,7 @@
 typedef struct access_attempt{
     time_t timestamp;
     long code;
-    bool attempt;
+    String value;
 } access_attempt_t;
 
 namespace access
@@ -19,8 +19,8 @@ namespace access
     int searchID(int l, int r, unsigned long x);
     int searchInsertID(int l, int r, unsigned long x);
     void update_code_accesses(next_endpoint_t *rp1);
-    void update_users_access(time_t time, long code, bool attempt);
-    bool validate(long code);
+    void update_users_access(access_attempt_t access_attempt);
+    String validate(long code);
 }
 
 #endif

@@ -3,6 +3,7 @@
 #include <Ethernet.h>
 #include <ArduinoJson.h>
 #include <TimeLib.h>
+#include <device.h>
 
 #ifndef REQUEST_H
 #define REQUEST_H
@@ -28,7 +29,8 @@ namespace request
     time_t convertUnix(const char* date); 
     bool schedules(access_record_t ar[]);
     bool get(const char* url, const char* msg);
-    bool endpoint(void);
+    bool post(const char* url, const char* msg);
+    bool audit(String json);
 } 
 
 #endif

@@ -25,5 +25,6 @@ namespace devices{
     const char* getLocation(int id);
     bool getStatus(const char* name);
     const char* getLocation(const char* name);
+    bool setStatus(int id, bool status);
 }
 #endif

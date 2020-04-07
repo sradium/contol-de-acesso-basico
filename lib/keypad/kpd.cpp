@@ -39,10 +39,18 @@ void kpd::validate()
   {
     Serial.println("No hay una camara disponible");
   }
-  bool found = access::validate((long)code.toInt());
-  access::update_users_access(now(), (long)code.toInt(), found);
+  access_attempt_t access_attempt;
+  access_attempt.timestamp = now();
+  access_attempt.code = (long)code.toInt();
+  access_attempt.value = access::validate((long)code.toInt());
+  access::update_users_access(access_attempt);
+
+  String json = "{\"type\":\"access_code\",\"value\":\""+access_attempt.value+"\",";
+  json = json+"\"device_id\":1202,\"commandID\":null,\"timestamp\":"+access_attempt.timestamp;
+  json = json+"}";
   /*
   *   Aqui me conecto al endpoint correspondiente
+  *   request::endpoint(json);
   */
   code = "";
   n = 0;
