@@ -5,32 +5,33 @@ device_t list[NO_DEVICES];
 HashType<const char*, int> hashRawArray[NO_DEVICES]; 
 HashMap<const char*, int> hashMap = HashMap<const char*, int>( hashRawArray , NO_DEVICES); 
 
-void devices::add(int id, const char* name, bool status, const char* location)
+
+/*
+*   Dispositivos instalados en la radiobase
+*/
+Kpd keypad = Kpd(1);
+
+void devices::add(int id, const char* name, const char* type, char* value, bool status)
 {
     list[id].name = name;
+    list[id].type = type;
+    list[id].value = value;
     list[id].status = status;
-    list[id].location = location;
-    hashMap[id](name, id);
+    hashMap[id](type, id);
 }
 
-bool devices::getStatus(int id)
+device_t devices::get(int id)
 {
-    return list[id].status;
+    return list[id];
 }
 
-const char* devices::getLocation(int id)
+device_t devices::get(const char* type)
 {
-    return list[id].location;
+    int id = hashMap.getValueOf(type);
+    return list[id];
 }
 
-bool devices::getStatus(const char* name)
+void devices::check()
 {
-    int id = hashMap.getValueOf(name);
-    return list[id].status;
-}
-
-const char* devices::getLocation(const char* name)
-{
-    int id = hashMap.getValueOf(name);
-    return list[id].location;
+    keypad.check();
 }

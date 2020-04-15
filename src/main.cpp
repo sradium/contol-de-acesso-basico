@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "access.h"
-#include "kpd.h"
+#include "device.h"
 
 const unsigned long interval = 60000;
 unsigned long current;
@@ -9,13 +9,13 @@ next_endpoint_t next_connections;
 void setup()
 {
   access::init();
-  devices::add(1, "keypad", kpd::begin(), "Main door");
+  setTime(8, 33, 0, 14, 4, 2020);
   current = millis();
 }
 
 void loop()
 {
-  kpd::check();
+  devices::check();
 
   if((millis() - current) > interval)
   {

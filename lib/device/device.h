@@ -1,11 +1,12 @@
 #include <Arduino.h>
+#include <kpd.h>
 
 #ifndef DEVICE_H
 #define DEVICE_H
 
 /*
 * Numero de dispositivos default si se desea cambiar en numero de dispositivos
-* solo tiene de agregar la linea #define NO_DEVICES <cantidad>
+* solo tiene que agregar la linea #define NO_DEVICES <cantidad>
 */
 
 #ifndef NO_DEVICES
@@ -13,18 +14,18 @@
 #endif
 
 typedef struct device{
-    int id;
     const char* name;
+    const char* type;
+    char* value;
     bool status;
-    const char* location;
 } device_t;
 
 namespace devices{
-    void add(int id, const char* name, bool status, const char* location);
-    bool getStatus(int id);
-    const char* getLocation(int id);
-    bool getStatus(const char* name);
-    const char* getLocation(const char* name);
-    bool setStatus(int id, bool status);
+    void init(void);
+    void add(int id, const char* name, const char* type, char* value, bool status);
+    device_t get(int id);
+    device_t get(const char* name);
+    void check(void); 
 }
+
 #endif

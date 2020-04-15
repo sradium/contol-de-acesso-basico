@@ -1,5 +1,4 @@
 #include "access.h"
-#include <device.h>
 
 #define TABLE_SIZE 1024
 
@@ -31,8 +30,6 @@ void access::init()
     {
         delay(300);
     }
-    devices::add(0, "Camera1", false, "Main door");
-
     /*
     * Si es la primera vez que se cargara el programa en el arduino se tiene
     * que comentar los open y descomentar los create. Despues de correrlo se

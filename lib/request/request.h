@@ -3,7 +3,6 @@
 #include <Ethernet.h>
 #include <ArduinoJson.h>
 #include <TimeLib.h>
-#include <device.h>
 
 #ifndef REQUEST_H
 #define REQUEST_H

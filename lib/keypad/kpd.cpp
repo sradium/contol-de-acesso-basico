@@ -1,24 +1,10 @@
 #include "kpd.h"
 
-const byte ROWS = 4;
-const byte COLS = 4;
-char keys[ROWS][COLS] =
-    {
-        {'2', '5', '8', '0'},
-        {'3', '6', '9', '#'},
-        {'A', 'B', 'C', 'D'},
-        {'1', '4', '7', '*'}};
-byte rowPins[ROWS] = {2, 3, 4, 5};
-byte colPins[COLS] = {6, 7, 8, 9};
-
-Keypad kpd_device = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-int n = 0;
-String code;
-
-bool kpd::begin()
+Kpd::Kpd(int deviceID)
 {
-  setTime(8, 33, 0, 25, 3, 2020); //Paso el tiempo en cada corrida
-  return true;
+  id = deviceID;
+  code = "";
+  n = 0;
 }
 
 /* 
@@ -29,36 +15,32 @@ bool kpd::begin()
 * activa y se guarda la hora con el codigo usado en la base de datos.
 */
 
-void kpd::validate()
+void Kpd::validate()
 {
-  if (devices::getStatus("camera1"))
-  {
-    Serial.println("Tomé la foto");
-  }
-  else
-  {
-    Serial.println("No hay una camara disponible");
-  }
   access_attempt_t access_attempt;
   access_attempt.timestamp = now();
   access_attempt.code = (long)code.toInt();
   access_attempt.value = access::validate((long)code.toInt());
-  access::update_users_access(access_attempt);
 
   String json = "{\"type\":\"access_code\",\"value\":\""+access_attempt.value+"\",";
-  json = json+"\"device_id\":1202,\"commandID\":null,\"timestamp\":"+access_attempt.timestamp;
+  json = json+"\"code\":"+access_attempt.code+",\"device_id\":"+id+",\"deviceType\":\"keypad\"";
+  json = json+",\"timestamp\":"+access_attempt.timestamp+",\"commandID\":null";
   json = json+"}";
+
   /*
   *   Aqui me conecto al endpoint correspondiente
-  *   request::endpoint(json);
+  *   request::audit(json);
+  *   Si no existe conexion con el enpoint guardo el intento en la base se datos
+  *   
   */
+  access::update_users_access(access_attempt);
   code = "";
   n = 0;
 }
 
-void kpd::check()
+void Kpd::check()
 {
-  char key = kpd_device.getKey();
+  char key = keypad.getKey();
   if (key)
   {
     if (key != '#' && n < 6)
