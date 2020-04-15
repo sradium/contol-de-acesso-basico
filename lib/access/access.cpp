@@ -37,7 +37,7 @@ void access::init()
     * para poder acceder a ella despues de un corte de energia y recuperar los 
     * datos
     */
-
+   
     //db_scheduled_accesses.open(0);
     access_record_t access_record;
     db_scheduled_accesses.create(0, 2 * TABLE_SIZE, (unsigned int)sizeof(access_record));
