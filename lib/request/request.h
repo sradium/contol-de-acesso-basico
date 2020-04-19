@@ -1,3 +1,10 @@
+/*
+*   Libreria que gestiona todas las conexiones con el servidor
+*   actualiza los codigos de aceso permitidos, envia los avisos
+*   de alarma y recibe las instrucciones remotas
+*/
+
+
 #include <Arduino.h>
 #include <SPI.h>
 #include <Ethernet.h>

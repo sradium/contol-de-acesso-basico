@@ -1,3 +1,10 @@
+/*
+* Libreria que maneja las acciones del keypad, por los momentos se
+* utiliza la libreria de un keypad matricial pero es facimente convertible
+* a uno que implemente el protocolo wiegand.
+*/
+
+
 #include <Arduino.h>
 #include <Keypad.h>
 #include <access.h>

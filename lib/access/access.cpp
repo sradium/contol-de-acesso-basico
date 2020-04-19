@@ -1,3 +1,10 @@
+/*
+*   Libreria que gestiona las bases de datos local de los codigos
+*   de aceso permitidos desde la nube. Se puede implementar utilizando
+*   la memoria EEPROM interna, una EEPROM externa, una tarjeta SD o
+*   cualquier otro medio de escritutra por byte.
+*/
+
 #include "access.h"
 
 #define TABLE_SIZE 1024

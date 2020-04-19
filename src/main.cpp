@@ -1,5 +1,9 @@
+/*
+*   Programa principal para un sistema de seguridad de una radiobase   
+*   
+*/
+
 #include <Arduino.h>
-#include "access.h"
 #include "device.h"
 
 const unsigned long interval = 60000;
