@@ -12,8 +12,7 @@ next_endpoint_t next_connections;
 
 void setup()
 {
-  access::init();
-  setTime(8, 33, 0, 14, 4, 2020);
+  devices::init();
   current = millis();
 }
 
@@ -21,14 +20,16 @@ void loop()
 {
   devices::check();
 
-  if((millis() - current) > interval)
+  if ((millis() - current) > interval)
   {
-    if(request::ping(&next_connections)){
+    if (request::ping(&next_connections))
+    {
       current = millis();
     }
   }
 
-  if(next_connections.schedules){
-    access::update_code_accesses(&next_connections);
+  if (next_connections.schedules)
+  {
+    //access::update_code_accesses(&next_connections);
   }
 }

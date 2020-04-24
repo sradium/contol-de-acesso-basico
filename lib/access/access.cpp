@@ -33,10 +33,6 @@ EDB db_access_attempts(&writer, &reader);
 
 void access::init()
 {
-    while (!request::init())
-    {
-        delay(300);
-    }
     /*
     * Si es la primera vez que se cargara el programa en el arduino se tiene
     * que comentar los open y descomentar los create. Despues de correrlo se
@@ -55,7 +51,7 @@ void access::init()
     db_access_attempts.open(2049);
     //db_access_attempts.create(2049, TABLE_SIZE, (unsigned int)sizeof(access_attempt));
     Serial.print("Record used in table 2: ");
-    Serial.println(db_access_attempts.count());
+    Serial.print(db_access_attempts.count());
     Serial.print(" ,and max of records: ");
     Serial.println(db_access_attempts.limit());
 }

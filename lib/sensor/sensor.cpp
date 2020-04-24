@@ -1,8 +1,46 @@
-#include "kpd.h"
+#include "sensor.h"
 
-Kpd::Kpd(int deviceID)
+IR::IR(int pin, int id, char *name, char *type)
 {
-  id = deviceID;
+  this->pin = pin;
+  pinMode(pin, INPUT);
+  this->id = id;
+  this->name = name;
+  this->type = type;
+  status = digitalRead(pin);
+}
+
+void IR::check()
+{
+  if (digitalRead(pin))
+  {
+    Serial.println("Detecte una obtruccion");
+  }
+}
+
+door_sensor::door_sensor(int pin, int id, char *name, char *type)
+{
+  this->pin = pin;
+  pinMode(pin, INPUT);
+  this->id = id;
+  this->name = name;
+  this->type = type;
+  status = digitalRead(pin);
+}
+
+void door_sensor::check()
+{
+  if(!digitalRead(pin))
+  {
+    Serial.println("Se abrio la puerta");
+  }
+}
+
+Kpd::Kpd(int id, char *name, char *type)
+{
+  this->id = id;
+  this->name = name;
+  this->type = type;
   code = "";
   n = 0;
 }
@@ -22,10 +60,10 @@ void Kpd::validate()
   access_attempt.code = (long)code.toInt();
   access_attempt.value = access::validate((long)code.toInt());
 
-  String json = "{\"type\":\"access_code\",\"value\":\""+access_attempt.value+"\",";
-  json = json+"\"code\":"+access_attempt.code+",\"device_id\":"+id+",\"deviceType\":\"keypad\"";
-  json = json+",\"timestamp\":"+access_attempt.timestamp+",\"commandID\":null";
-  json = json+"}";
+  String json = "{\"type\":\"access_code\",\"value\":\"" + access_attempt.value + "\",";
+  json = json + "\"code\":" + access_attempt.code + ",\"device_id\":" + id + ",\"deviceType\":\"keypad\"";
+  json = json + ",\"timestamp\":" + access_attempt.timestamp + ",\"commandID\":null";
+  json = json + "}";
 
   /*
   *   Aqui me conecto al endpoint correspondiente
@@ -48,7 +86,7 @@ void Kpd::check()
       code += key;
       n++;
     }
-    else if(n>0)
+    else if (n > 0)
     {
       validate();
     }

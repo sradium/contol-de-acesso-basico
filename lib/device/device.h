@@ -8,7 +8,7 @@
 */
 
 #include <Arduino.h>
-#include <kpd.h>
+#include <sensor.h>
 
 #ifndef DEVICE_H
 #define DEVICE_H
@@ -21,42 +21,10 @@
 #define NO_DEVICES 10
 #endif
 
-enum devices
-{
-    IR,
-    PIR,
-    SIREN,
-    BUTTON,
-    KEYPAD
-};
-
-typedef struct device
-{
-    const char *name;
-    const char *type;
-    char *value;
-    bool status;
-} device_t;
-
-class IR
-{
-    private:
-        const char *name;
-        const char *type;
-        char *value;
-        bool status;
-
-    public:
-        IR(char *name, char *type, char *value, bool status);
-};
-
 namespace devices
 {
 void init(void);
-void add(int id, const char *name, const char *type, char *value, bool status);
-device_t get(int id);
-device_t get(const char *name);
 void check(void);
-} 
+} // namespace devices
 
 #endif

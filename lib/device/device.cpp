@@ -1,37 +1,27 @@
 #include "device.h"
-#include <HashMap.h>
-
-device_t list[NO_DEVICES];
-HashType<const char*, int> hashRawArray[NO_DEVICES]; 
-HashMap<const char*, int> hashMap = HashMap<const char*, int>( hashRawArray , NO_DEVICES); 
-
 
 /*
 *   Dispositivos instalados en la radiobase
 */
-Kpd keypad = Kpd(1);
+Sensor *device[NO_DEVICES];
 
-void devices::add(int id, const char* name, const char* type, char* value, bool status)
+void devices::init()
 {
-    list[id].name = name;
-    list[id].type = type;
-    list[id].value = value;
-    list[id].status = status;
-    hashMap[id](type, id);
-}
-
-device_t devices::get(int id)
-{
-    return list[id];
-}
-
-device_t devices::get(const char* type)
-{
-    int id = hashMap.getValueOf(type);
-    return list[id];
+    while (!request::init())
+    {
+        delay(300);
+    }
+    //access::init();
+    //device[0] = new Kpd(1, (char*)"keypad", (char*)"access_code");
+    device[0] = new IR(11, 1, (char *)"ir", (char *)"ir_barrier");
+    device[1] = new door_sensor(12, 2, (char *)"reed_switch_nc", (char *)"door_sensor");
+    setTime(8, 33, 0, 14, 4, 2020);
 }
 
 void devices::check()
 {
-    keypad.check();
+    for (int i = 0; i < 2; i++)
+    {
+        device[i]->check();
+    }
 }
