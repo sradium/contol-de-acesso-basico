@@ -154,7 +154,7 @@ bool request::ping(next_endpoint_t *ne)
     }
 }
 
-time_t request::convertUnix(const char *date)
+time_t request::convert_unix(const char *date)
 {
     int j = 0;
     unsigned int elements[6] = {0};
@@ -191,7 +191,7 @@ bool request::schedules(access_record_t ar[])
         {
             JsonObject root = doc[i];
             ar[i].id = root["id"];
-            time_t start = convertUnix(root["start"]);
+            time_t start = convert_unix(root["start"]);
             ar[i].start = start;
             time_t final = root["duration"];
             ar[i].final = (60 * final) + start;

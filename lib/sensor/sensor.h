@@ -1,16 +1,20 @@
 /*
-* Libreria que maneja las acciones del keypad, por los momentos se
-* utiliza la libreria de un keypad matricial pero es facimente convertible
-* a uno que implemente el protocolo wiegand.
+*
+* Libreria donde se declaran los distintos tipos de sensores, basados
+* en una clase abstracta que contiene las propiedades de la matriz de
+* dispositivos.
+* Por los momentos se utiliza la libreria de un keypad matricial pero  
+* es facimente convertible a uno que implemente el protocolo wiegand.
+*
 */
 
-#include <Arduino.h>
 #include <Keypad.h>
 #include <access.h>
 
-#ifndef KPD_H
-#define KPD_H
+#ifndef SENSOR_H
+#define SENSOR_H
 
+#define MAX_INTERVAL 60000
 #define ROWS 4
 #define COLS 4
 
@@ -22,9 +26,12 @@ protected:
     const char *type;
     char *value;
     bool status;
-
 public:
     virtual void check();
+    bool getStatus()
+    {
+        return status;
+    }
 };
 
 class IR : public Sensor
@@ -37,13 +44,14 @@ public:
     void check();
 };
 
-class door_sensor: public Sensor
+class Door_sensor : public Sensor
 {
 private:
     int pin;
-
+    long init;
+    
 public:
-    door_sensor(int pin, int id, char *name, char *type);
+    Door_sensor(int pin, int id, char *name, char *type);
     void check();
 };
 
@@ -52,6 +60,7 @@ class Kpd : public Sensor
 private:
     int n;
     String code;
+
     char keys[ROWS][COLS] =
         {{'2', '5', '8', '0'},
          {'3', '6', '9', '#'},
@@ -67,4 +76,5 @@ public:
     Kpd(int id, char *name, char *type);
     void check();
 };
+
 #endif

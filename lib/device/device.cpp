@@ -3,7 +3,8 @@
 /*
 *   Dispositivos instalados en la radiobase
 */
-Sensor *device[NO_DEVICES];
+Sensor *sensors[NO_SENSORS];
+Actuator *actuators[NO_ACTUATORS];
 
 void devices::init()
 {
@@ -11,17 +12,30 @@ void devices::init()
     {
         delay(300);
     }
-    //access::init();
-    //device[0] = new Kpd(1, (char*)"keypad", (char*)"access_code");
-    device[0] = new IR(11, 1, (char *)"ir", (char *)"ir_barrier");
-    device[1] = new door_sensor(12, 2, (char *)"reed_switch_nc", (char *)"door_sensor");
-    setTime(8, 33, 0, 14, 4, 2020);
+    access::init();
+    
+    actuators[0] = new Door_solenoid(10, 3, (char *)"Door", (char *)"Door");
+
+    sensors[0] = new Kpd(0, (char *)"keypad", (char *)"access_code");
+    sensors[1] = new IR(11, 1, (char *)"ir", (char *)"ir_barrier");
+    sensors[2] = new Door_sensor(12, 2, (char *)"reed_switch_nc", (char *)"door_sensor");
+
+    setTime(9, 0, 0, 24, 4, 2020);
 }
 
 void devices::check()
 {
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < NO_SENSORS; i++)
     {
-        device[i]->check();
+        sensors[i]->check();
+    }
+    int count_sensors = 0;
+    for (int i = 0; i < NO_SENSORS; i++)
+    {
+        if (sensors[i]->getStatus())
+        {
+            count_sensors++;
+            Serial.println("Se ha activado un sensor");
+        }
     }
 }

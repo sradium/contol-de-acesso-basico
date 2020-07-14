@@ -30,6 +30,6 @@ void loop()
 
   if (next_connections.schedules)
   {
-    //access::update_code_accesses(&next_connections);
+    access::update_code_accesses(&next_connections);
   }
 }

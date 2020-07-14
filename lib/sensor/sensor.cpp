@@ -12,13 +12,18 @@ IR::IR(int pin, int id, char *name, char *type)
 
 void IR::check()
 {
+  delay(100);
   if (digitalRead(pin))
   {
-    Serial.println("Detecte una obtruccion");
+    status = true;
+  }
+  else
+  {
+    status = false;
   }
 }
 
-door_sensor::door_sensor(int pin, int id, char *name, char *type)
+Door_sensor::Door_sensor(int pin, int id, char *name, char *type)
 {
   this->pin = pin;
   pinMode(pin, INPUT);
@@ -28,11 +33,16 @@ door_sensor::door_sensor(int pin, int id, char *name, char *type)
   status = digitalRead(pin);
 }
 
-void door_sensor::check()
+void Door_sensor::check()
 {
-  if(!digitalRead(pin))
+  delay(100);
+  if (!digitalRead(pin))
   {
-    Serial.println("Se abrio la puerta");
+    status = true;
+  }
+  else
+  {
+    status = false;
   }
 }
 
@@ -43,6 +53,7 @@ Kpd::Kpd(int id, char *name, char *type)
   this->type = type;
   code = "";
   n = 0;
+  status = false;
 }
 
 /* 
@@ -74,6 +85,7 @@ void Kpd::validate()
   access::update_users_access(access_attempt);
   code = "";
   n = 0;
+  status = access_attempt.value;
 }
 
 void Kpd::check()

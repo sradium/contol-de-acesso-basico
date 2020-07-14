@@ -32,7 +32,7 @@ namespace request
 {
     bool init(void);  
     bool ping(next_endpoint_t *ne);
-    time_t convertUnix(const char* date); 
+    time_t convert_unix(const char* date); 
     bool schedules(access_record_t ar[]);
     bool get(const char* url, const char* msg);
     bool post(const char* url, const char* msg);
